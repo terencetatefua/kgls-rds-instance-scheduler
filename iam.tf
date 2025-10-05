@@ -1,12 +1,9 @@
-resource "random_string" "iam_suffix" {
-  length      = 8
-  numeric     = true
-  min_numeric = 8
-}
+resource "aws_iam_role" "scheduler" {
+  for_each = {
+    for rds in var.rds_instances : rds.identifier => rds
+  }
 
-resource "aws_iam_role" "event" {
-  count = local.enable_lower_env ? 1 : 0
-  name  = substr("rds-scheduler-${var.identifier}-${random_string.iam_suffix.result}", 0, 64)
+  name = "rds-scheduler-${each.key}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -22,23 +19,21 @@ resource "aws_iam_role" "event" {
   })
 }
 
-resource "aws_iam_role_policy" "event_policy" {
-  count = local.enable_lower_env ? 1 : 0
-  name  = "rds-scheduler-policy-${var.identifier}-${random_string.iam_suffix.result}"
-  role  = aws_iam_role.event[0].id
+resource "aws_iam_role_policy" "scheduler_policy" {
+  for_each = aws_iam_role.scheduler
+
+  name = "rds-scheduler-policy-${each.key}"
+  role = each.value.name
 
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = [
-          "rds:StopDBInstance",
+        Effect   = "Allow",
+        Action   = [
           "rds:StartDBInstance",
-          "rds:StopDBCluster",
-          "rds:StartDBCluster",
-          "rds:DescribeDBInstances",
-          "rds:DescribeDBClusters"
+          "rds:StopDBInstance",
+          "rds:DescribeDBInstances"
         ],
         Resource = "*"
       }

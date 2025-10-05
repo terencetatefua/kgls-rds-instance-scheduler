@@ -1,7 +1,18 @@
-identifier        = "dev-app-db"
-aurora_cluster    = false
-cron_start        = "0 13 * * ? *" # 9 AM US/Eastern
-cron_stop         = "0 21 * * ? *" # 5 PM US/Eastern
-schedule_timezone = "US/Eastern"
-state             = "ENABLED"
-region            = "us-east-2"
+region = "us-east-2"
+
+rds_instances = [
+  {
+    identifier         = "dev-app-mysql"
+    cron_start         = "0 6 * * ? *"
+    cron_stop          = "55 13 * * ? *"
+    schedule_timezone  = "US/Eastern"
+    state              = "ENABLED"
+  },
+  {
+    identifier         = "test-users-db"
+    cron_start         = "0 7 * * ? *"
+    cron_stop          = "48 13 * * ? *"
+    schedule_timezone  = "US/Eastern"
+    state              = "ENABLED"
+  }
+]
