@@ -9,7 +9,7 @@ It is designed to run **only on non-production environments**, such as `dev`, `t
 
 - ✅ Automatically **starts/stops RDS and Aurora** resources using scheduled rules
 - ✅ Targets only **lower environments** using naming convention logic
-- ✅ Supports both **RDS instances** and **Aurora MySQL clusters**
+- ✅ Supports both **RDS instances** 
 - ✅ Uses **EventBridge Scheduler** with direct AWS API calls
 - ✅ No Lambda required
 - ✅ Safe for use in shared accounts — **production databases will be ignored**
