@@ -1,50 +1,19 @@
-# .github/workflows/codeql.yml
-
-name: "CodeQL Python Scan"
+name: Terraform Security Scan
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '23 9 * * 0' # weekly Sunday scan
-
-permissions:
-  security-events: write
-  actions: read
-  contents: read
 
 jobs:
-  analyze:
-    name: Analyze (Python)
+  tfsec:
+    name: Run tfsec
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [python]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
         with:
-          python-version: "3.11"
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-          build-mode: none
-          config-file: .github/codeql/codeql-config.yml
-
-      - name: Dummy Python step (ensure detection)
-        run: python -c "import scheduler; print('Python detected')"
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
