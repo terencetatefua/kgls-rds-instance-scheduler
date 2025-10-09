@@ -1,3 +1,5 @@
+# .github/workflows/codeql.yml
+
 name: "CodeQL Python Scan"
 
 on:
@@ -6,7 +8,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 9 * * 0'
+    - cron: '23 9 * * 0' # weekly Sunday scan
 
 permissions:
   security-events: write
@@ -15,15 +17,20 @@ permissions:
 
 jobs:
   analyze:
+    name: Analyze (Python)
     runs-on: ubuntu-latest
+
     strategy:
+      fail-fast: false
       matrix:
         language: [python]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -32,10 +39,12 @@ jobs:
         with:
           languages: ${{ matrix.language }}
           build-mode: none
-          # Remove this line unless you've created the file
-          # config-file: .github/codeql/codeql-config.yml
+          config-file: .github/codeql/codeql-config.yml
 
-      - name: Dummy Python detection step
-        run: python -c "print('Python exists')"
+      - name: Dummy Python step (ensure detection)
+        run: python -c "import scheduler; print('Python detected')"
 
-      - uses: github/codeql-action/analyze@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
