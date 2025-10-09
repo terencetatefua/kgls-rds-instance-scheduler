@@ -5,48 +5,29 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-  schedule:
-    - cron: '23 9 * * 0' # weekly Sunday scan
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
-
-    permissions:
-      security-events: write      # required for all CodeQL uploads
-      actions: read               # only needed for private repos
-      contents: read              # only needed for private repos
-      packages: read              # for GitHub packages access
-
     strategy:
-      fail-fast: false
       matrix:
-        language: [python]        # ✅ Python is specified here
+        language: [python]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"  # ✅ adjust if your repo uses another version
+          python-version: "3.11"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          build-mode: none        # ✅ For Python, use build-mode: none
+          build-mode: none
+          config-file: .github/codeql/codeql-config.yml
 
-      # If using manual build, insert it here.
-      - if: matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          echo 'Replace this with your build commands.'
-          exit 1
+      - name: Dummy Python detection step
+        run: python -c "print('Python code exists')"
 
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
+      - uses: github/codeql-action/analyze@v3
