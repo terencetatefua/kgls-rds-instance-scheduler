@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: "CodeQL Python Scan"
 
 on:
   push:
@@ -6,42 +6,47 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '23 9 * * 0'
+    - cron: '23 9 * * 0' # weekly Sunday scan
 
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
 
     permissions:
-      security-events: write
-      packages: read
-      actions: read
-      contents: read
+      security-events: write      # required for all CodeQL uploads
+      actions: read               # only needed for private repos
+      contents: read              # only needed for private repos
+      packages: read              # for GitHub packages access
 
     strategy:
       fail-fast: false
       matrix:
-        language: [javascript]   # ✅ define your CodeQL language(s) here
+        language: [python]        # ✅ Python is specified here
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"  # ✅ adjust if your repo uses another version
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          build-mode: autobuild   # ✅ optional (or remove if using default)
-          # queries: security-extended,security-and-quality
+          build-mode: none        # ✅ For Python, use build-mode: none
 
+      # If using manual build, insert it here.
       - if: matrix.build-mode == 'manual'
         shell: bash
         run: |
-          echo 'If using manual build mode, replace this with your build commands.'
+          echo 'Replace this with your build commands.'
           exit 1
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"
