@@ -7,7 +7,7 @@ resource "aws_scheduler_schedule" "rds_start" {
   group_name  = "default"
   description = "Start RDS DB ${each.key}"
 
-  schedule_expression          = "cron(${each.value.cron_start})"
+  schedule_expression          = each.value.cron_start       
   schedule_expression_timezone = each.value.schedule_timezone
   state                        = each.value.state
 
@@ -33,7 +33,7 @@ resource "aws_scheduler_schedule" "rds_stop" {
   group_name  = "default"
   description = "Stop RDS DB ${each.key}"
 
-  schedule_expression          = "cron(${each.value.cron_stop})"
+  schedule_expression          = each.value.cron_stop        
   schedule_expression_timezone = each.value.schedule_timezone
   state                        = each.value.state
 
@@ -48,4 +48,28 @@ resource "aws_scheduler_schedule" "rds_stop" {
       DbInstanceIdentifier = each.key
     })
   }
+}
+
+
+module "rds_scheduler" {
+  source = "../../modules/rds-scheduler"
+
+  region = local.region
+
+  rds_instances = [
+    {
+      identifier         = "dev-app-mysql"
+      cron_start         = "cron(10 18 * * ? *)"
+      cron_stop          = "cron(00 18 * * ? *)"
+      schedule_timezone  = "US/Eastern"
+      state              = "ENABLED"
+    },
+    {
+      identifier         = "test-users-db"
+      cron_start         = "cron(10 18 * * ? *)"
+      cron_stop          = "cron(00 18 * * ? *)"
+      schedule_timezone  = "US/Eastern"
+      state              = "ENABLED"
+    }
+  ]
 }
