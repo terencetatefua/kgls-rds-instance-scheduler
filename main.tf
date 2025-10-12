@@ -17,7 +17,7 @@ resource "aws_scheduler_schedule" "rds_start" {
 
   target {
     arn      = "arn:aws:scheduler:::aws-sdk:rds:startDBInstance"
-    role_arn = aws_iam_role.scheduler[each.key].arn
+    role_arn = aws_iam_role.rds_scheduler_role.arn
     input    = jsonencode({
       DbInstanceIdentifier = each.key
     })
@@ -43,7 +43,7 @@ resource "aws_scheduler_schedule" "rds_stop" {
 
   target {
     arn      = "arn:aws:scheduler:::aws-sdk:rds:stopDBInstance"
-    role_arn = aws_iam_role.scheduler[each.key].arn
+    role_arn = aws_iam_role.rds_scheduler_role.arn
     input    = jsonencode({
       DbInstanceIdentifier = each.key
     })
