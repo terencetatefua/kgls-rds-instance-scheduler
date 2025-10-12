@@ -54,7 +54,8 @@ resource "aws_scheduler_schedule" "rds_stop" {
 module "rds_scheduler" {
   source = "../../modules/rds-scheduler"
 
-  region = local.region
+  env    = local.env.name       # ✅ Correct
+  region = local.region         # ✅ Also correct
 
   rds_instances = [
     {
